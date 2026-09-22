@@ -74,3 +74,6 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+
+# Visual brainstorming companion
+.superpowers/
