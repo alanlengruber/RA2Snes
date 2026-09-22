@@ -85,6 +85,7 @@ private:
     static const QString baseUrl;
     static const QString userAgent;
     static const QString mediaUrl;
+    static const QString pfpCacheToken;
     void sendRequest(const QString& request_type, const QJsonObject& post_content);
     void handleSuccessResponse(const QJsonObject& jsonObject);
     void handleAwardAchievementResponse(const QJsonObject& jsonObject);

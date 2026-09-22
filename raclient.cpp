@@ -8,6 +8,10 @@
 
 const QString RAClient::baseUrl = "https://retroachievements.org/";
 const QString RAClient::mediaUrl = "https://media.retroachievements.org/";
+// RA serves UserPic with cache-control: max-age=2678400 (31 days), so the disk
+// cache and the QML pixmap cache would both hold a stale avatar for a month.
+// One token per launch keeps the URL stable in-session but refetches on restart.
+const QString RAClient::pfpCacheToken = QString::number(QDateTime::currentSecsSinceEpoch());
 const QString RAClient::userAgent = QString("ra2snes/%1 rcheevos/%2").arg(RA2SNES_VERSION_STRING,RCHEEVOS_VERSION_STRING);
 
 RAClient::RAClient(QObject *parent)
@@ -428,7 +432,7 @@ void RAClient::handleLoginResponse(const QJsonObject& jsonObject)
     userinfo_model->token(jsonObject["Token"].toString());
     userinfo_model->softcore_score(jsonObject["SoftcoreScore"].toInt());
     userinfo_model->hardcore_score(jsonObject["Score"].toInt());
-    userinfo_model->pfp((mediaUrl + "UserPic/" + userinfo_model->username() + ".png"));
+    userinfo_model->pfp((mediaUrl + "UserPic/" + userinfo_model->username() + ".png?v=" + pfpCacheToken));
     userinfo_model->link((baseUrl + "user/" + userinfo_model->username()));
     sendUserData();
     emit loginSuccess(m_refresh);
