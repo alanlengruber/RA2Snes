@@ -31,6 +31,8 @@
         <file>ui/LayoutMath.js</file>
         <file>ui/components/ThemeResolver.qml</file>
         <file>ui/components/AchievementCard.qml</file>
+        <file>ui/components/UserHeader.qml</file>
+        <file>ui/components/GameHeader.qml</file>
         <file>ui/icons.qml</file>
     </qresource>
 </RCC>
