@@ -173,3 +173,9 @@ install(TARGETS ra2snes updater
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(ra2snes)
 endif()
+
+option(RA2SNES_BUILD_TESTS "Build the test suite" ON)
+if(RA2SNES_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
