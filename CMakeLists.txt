@@ -16,6 +16,7 @@ set(TS_FILES ra2snes_en_US.ts)
 
 file(GLOB UI_FILES ${CMAKE_SOURCE_DIR}/ui/*)
 file(GLOB UI_IMAGES ${CMAKE_SOURCE_DIR}/ui/images/*)
+file(GLOB UI_COMPONENTS ${CMAKE_SOURCE_DIR}/ui/components/*)
 
 set(RCHEEVOS_SOURCES
     ${CMAKE_SOURCE_DIR}/rcheevos/src/rc_compat.c
@@ -68,6 +69,7 @@ endif()
 set(PROJECT_SOURCES
     ${UI_FILES}
     ${UI_IMAGES}
+    ${UI_COMPONENTS}
     main.cpp
     ra2snes.cpp
     ra2snes.h

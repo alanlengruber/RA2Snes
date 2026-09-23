@@ -81,4 +81,22 @@ Item {
 	
 	property color progressBarColor: "#eab308"
 	property color progressBarBackgroundColor: "#2a2a2a"
+
+	//Cards
+	property color cardBackgroundColor: "#242428"
+	property color cardBorderColor: "#32323a"
+	property color cardHoverBackgroundColor: "#2e2e36"
+	property color surfaceElevatedColor: "#1b1b1f"
+	property color shadowColor: "#000000"
+	property color heroGradientStart: "#2b3a33"
+	property color heroGradientEnd: "#1d1d22"
+
+	//Toast
+	property color toastBackgroundColor: "#16201c"
+	property color toastBorderColor: "#6ee7a8"
+	property color toastLabelColor: "#6ee7a8"
+	property color toastTitleColor: "#ffffff"
+	property color toastPointsColor: "#6ee7a8"
+	property color beatenToastBorderColor: "#d4d4d4"
+	property color masteredToastBorderColor: "#ffd700"
 }
