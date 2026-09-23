@@ -18,6 +18,7 @@ RowLayout {
     }
 
     Image {
+        objectName: "avatar"
         Layout.preferredWidth: header.dense ? 30 : 38
         Layout.preferredHeight: header.dense ? 30 : 38
         source: UserInfoModel.pfp
@@ -27,7 +28,9 @@ RowLayout {
         cache: true
         smooth: true
 
-        layer.enabled: true
+        // Sem GPU a máscara (shader) não é desenhada e a foto sumiria;
+        // lá ela fica quadrada.
+        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software
         layer.effect: OpacityMask {
             maskSource: Rectangle {
                 width: header.dense ? 30 : 38

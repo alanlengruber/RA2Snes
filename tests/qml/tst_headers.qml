@@ -59,6 +59,17 @@ TestCase {
                "pill ends at " + right + " but header is " + header.width + " wide");
     }
 
+    // Mesmo motivo do toast: a máscara redonda da foto é um efeito de shader.
+    function test_avatar_visible_without_shader_support() {
+        var header = createTemporaryObject(userComponent, this);
+        var avatar = findChild(header, "avatar");
+        verify(avatar !== null);
+        if (GraphicsInfo.api === GraphicsInfo.Software)
+            verify(!avatar.layer.enabled, "software renderer: round mask would hide the avatar");
+        else
+            verify(avatar.layer.enabled, "GPU renderer: round mask expected");
+    }
+
     function test_game_header_loads_without_warnings() {
         verify(createTemporaryObject(gameComponent, this) !== null);
     }
