@@ -16,6 +16,10 @@ qt_add_executable(tst_qml
     ${CMAKE_SOURCE_DIR}/userinfomodel.h
     ${CMAKE_SOURCE_DIR}/gameinfomodel.cpp
     ${CMAKE_SOURCE_DIR}/gameinfomodel.h
+    ${CMAKE_SOURCE_DIR}/achievementmodel.cpp
+    ${CMAKE_SOURCE_DIR}/achievementmodel.h
+    ${CMAKE_SOURCE_DIR}/achievementsortfilterproxymodel.cpp
+    ${CMAKE_SOURCE_DIR}/achievementsortfilterproxymodel.h
     ${CMAKE_SOURCE_DIR}/rastructs.h
 )
 target_include_directories(tst_qml PRIVATE ${CMAKE_SOURCE_DIR})
