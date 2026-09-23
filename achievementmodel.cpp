@@ -62,12 +62,8 @@ QVariant AchievementModel::data(const QModelIndex &index, int role) const {
     }
 }
 
-QVariantMap AchievementModel::get(int row) const {
+QVariantMap AchievementModel::toVariantMap(const AchievementInfo &a) const {
     QVariantMap map;
-    if (row < 0 || row >= m_achievements.size())
-        return map;
-
-    const auto &a = m_achievements.at(row);
 
     map["badgeLockedUrl"] = a.badge_locked_url;
     map["badgeName"] = a.badge_name;
@@ -89,6 +85,13 @@ QVariantMap AchievementModel::get(int row) const {
     map["target"] = a.target;
 
     return map;
+}
+
+QVariantMap AchievementModel::get(int row) const {
+    if (row < 0 || row >= m_achievements.size())
+        return QVariantMap();
+
+    return toVariantMap(m_achievements.at(row));
 }
 
 QHash<int, QByteArray> AchievementModel::roleNames() const {
@@ -144,6 +147,7 @@ AchievementInfo* AchievementModel::unlockAchievement(const unsigned int& id, con
     QModelIndex index = createIndex(i, 0);
     emit dataChanged(index, index, {UnlockedRole, TimeUnlockedRole, TimeUnlockedStringRole, ValueRole, PercentRole});
     emit unlockedChanged();
+    emit achievementUnlocked(toVariantMap(a));
 
     return &a;
 }

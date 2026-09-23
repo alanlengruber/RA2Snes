@@ -42,6 +42,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE QVariantMap get(int row) const;
+    QVariantMap toVariantMap(const AchievementInfo &a) const;
 
     void setUnlockedState(const unsigned int& id, const bool& unlocked, const QDateTime& time);
     AchievementInfo* unlockAchievement(const unsigned int& id, const QDateTime& time);
@@ -56,6 +57,7 @@ public:
 
 signals:
     void unlockedChanged();
+    void achievementUnlocked(const QVariantMap &achievement);
     void primedChanged(const QUrl& badgeUrl, const bool& p);
     void valueChanged(const QUrl& badgeUrl, const unsigned int& value, const unsigned int& total);
 
