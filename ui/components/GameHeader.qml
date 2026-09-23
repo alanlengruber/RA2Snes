@@ -79,7 +79,11 @@ Rectangle {
                     TapHandler { onTapped: header.linkActivated(GameInfoModel.game_link) }
                 }
 
+                // Flexível: num RowLayout, filho sem fillWidth fica rígido na
+                // largura natural e trava o cartão inteiro. O nome do console é
+                // o que encurta; contagem e missables ficam sempre visíveis.
                 RowLayout {
+                    Layout.fillWidth: true
                     spacing: 5
 
                     Image {
@@ -93,6 +97,8 @@ Rectangle {
                     }
 
                     Text {
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
                         text: GameInfoModel.console
                         font.pixelSize: 10
                         color: header._c("disabledTextColor", "basicTextColor", "#8fa39a")
@@ -127,6 +133,7 @@ Rectangle {
             }
 
             Text {
+                objectName: "progressPercent"
                 text: Math.round(header.progress * 100) + "%"
                 font.bold: true
                 font.pixelSize: header.dense ? 12 : 14
@@ -134,8 +141,9 @@ Rectangle {
             }
         }
 
-        // Barra de progresso — vinha só do compact.qml
+        // Barra de progresso por quantidade de conquistas
         Rectangle {
+            objectName: "progressTrack"
             Layout.fillWidth: true
             Layout.preferredHeight: 6
             radius: 3
@@ -153,12 +161,12 @@ Rectangle {
 
         Text {
             Layout.fillWidth: true
-            text: GameInfoModel.point_count + " / " + GameInfoModel.point_total + qsTr(" pontos")
+            text: GameInfoModel.point_count + " / " + GameInfoModel.point_total + qsTr(" points")
             font.pixelSize: 10
             color: header._c("timeStampColor", "disabledTextColor", "#7e7e7e")
         }
 
-        // Rich presence — vinha só do noncompact.qml
+        // Rich presence, sempre visível junto da barra
         Text {
             Layout.fillWidth: true
             visible: header.showRichPresence && Ra2snes.richPresence !== ""

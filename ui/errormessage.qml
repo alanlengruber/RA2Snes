@@ -4,6 +4,9 @@ import CustomModels 1.0
 Item {
     id: outer
     property var mainWindow
+    // Sem altura própria, o item ocupava 0px e o texto vazava sobre o que
+    // estivesse abaixo. Dentro de um layout isso precisa ser explícito.
+    implicitHeight: errorMessage.text !== "" ? errorMessage.implicitHeight : 0
     function updateMessage()
     {
         errorMessage.showRichPresence();
@@ -11,6 +14,7 @@ Item {
 
     Text {
         id: errorMessage
+        objectName: "statusMessage"
         font.family: "Verdana"
         font.pixelSize: 13
         color: themeLoader.item.basicTextColor
@@ -23,23 +27,16 @@ Item {
             }
         }
         onHeightChanged: {
-            outer.mainWindow.errorHeight = height;
+            if (outer.mainWindow)
+                outer.mainWindow.errorHeight = height;
         }
 
+        // No layout compacto antigo, a linha de status ociosa exibia o rich
+        // presence. O GameHeader agora o mostra sempre, então ociosa ela fica vazia.
         function showRichPresence()
         {
-            if(errorMessage.color == themeLoader.item.basicTextColor && outer.mainWindow.compact)
-            {
-                errorMessage.color = themeLoader.item.basicTextColor;
-                errorMessage.font.pixelSize = 11;
-                errorMessage.text = Ra2snes.richPresence;
-                errorMessage.opacity = 1;
-            }
-            else
-            {
-                errorMessage.text = "";
-                errorMessage.opacity = 0;
-            }
+            errorMessage.text = "";
+            errorMessage.opacity = 0;
         }
 
         Component.onCompleted: {

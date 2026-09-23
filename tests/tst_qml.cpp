@@ -15,8 +15,15 @@ class FakeRa2snes : public QObject
 public:
     QString richPresence() const { return m_richPresence; }
 
+    // Os testes disparam as mensagens de status que o Ra2snes real emite.
+    Q_INVOKABLE void emitDisplayMessage(const QString &message, bool isError)
+    {
+        emit displayMessage(message, isError);
+    }
+
 signals:
     void updatedRichText();
+    void displayMessage(const QString &error, const bool &iserror);
 
 private:
     QString m_richPresence = QStringLiteral("Kong Quest - Gangplank Galley");

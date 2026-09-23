@@ -16,8 +16,28 @@ Item {
     readonly property int minCardWidth: dense ? 240 : 300
     readonly property int columns: LayoutMath.columnsFor(availableWidth - 24, minCardWidth)
     readonly property string headerMode: LayoutMath.headerMode(availableWidth)
+    readonly property real cellWidth: LayoutMath.cellWidthFor(availableWidth - 24, minCardWidth)
+    // Medida, não estimada: a altura do texto depende da fonte do sistema, que
+    // muda entre Linux e Windows. A sonda abaixo tem o conteúdo de pior caso.
+    readonly property real cellHeight: Math.ceil(sizeProbe.implicitHeight) + 8
 
     implicitHeight: column.implicitHeight
+
+    // Pior caso de altura: descrição em 2 linhas + barra de progresso + valor +
+    // linha de tipo. Transparente e desabilitada; existe só para ser medida.
+    // Não usar visible: false — layouts ignoram itens invisíveis e a altura
+    // implícita viraria zero.
+    AchievementCard {
+        id: sizeProbe
+        width: dashboard.cellWidth - 8
+        opacity: 0
+        enabled: false
+        dense: dashboard.dense
+        title: "M"
+        description: "M\nM\nM"
+        target: 1
+        achievementType: "missable"
+    }
 
     ThemeResolver {
         id: themeResolver
@@ -37,14 +57,34 @@ Item {
             columnSpacing: 10
             rowSpacing: 10
 
-            UserHeader {
+            // Usuário + linha de status. Lado a lado, o cartão do jogo é mais
+            // alto que o bloco do usuário, então o status cabe no espaço que
+            // sobra embaixo do nome sem empurrar o grid.
+            ColumnLayout {
+                Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: dashboard.headerMode === "stacked"
+                // Pelo menos a largura natural do conteúdo (nome + selo), para o
+                // nome não encurtar à toa; no máximo 45%, para o cartão do jogo
+                // nunca ficar espremido. Nomes longos demais encurtam com "…".
                 Layout.preferredWidth: dashboard.headerMode === "stacked"
                                        ? -1
-                                       : Math.min(300, dashboard.availableWidth * 0.33)
-                resolver: themeResolver
-                dense: dashboard.dense
-                onLinkActivated: (link) => Qt.openUrlExternally(link)
+                                       : Math.min(Math.max(300, userHeader.implicitWidth),
+                                                  dashboard.availableWidth * 0.45)
+                spacing: 8
+
+                UserHeader {
+                    id: userHeader
+                    Layout.fillWidth: true
+                    resolver: themeResolver
+                    dense: dashboard.dense
+                    onLinkActivated: (link) => Qt.openUrlExternally(link)
+                }
+
+                Loader {
+                    Layout.fillWidth: true
+                    source: "./errormessage.qml"
+                    onLoaded: item.mainWindow = dashboard.mainWindow
+                }
             }
 
             GameHeader {
@@ -72,8 +112,8 @@ Item {
 
             model: sortedAchievementModel
 
-            cellWidth: LayoutMath.cellWidthFor(width, dashboard.minCardWidth)
-            cellHeight: dashboard.dense ? 84 : 104
+            cellWidth: dashboard.cellWidth
+            cellHeight: dashboard.cellHeight
 
             delegate: Item {
                 width: grid.cellWidth

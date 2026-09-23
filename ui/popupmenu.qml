@@ -484,7 +484,7 @@ Item {
                         width: 14
                         height: 14
                         enabled: dropdown.mainWindow.loadedThemes
-                        checked: dropdown.mainWindow.compact
+                        checked: dropdown.mainWindow.dense
 
                         indicator: Rectangle {
                             width: 14
@@ -503,7 +503,7 @@ Item {
 
                     Text {
                         id: compactMode
-                        text: qsTr("Compact Mode")
+                        text: qsTr("Compact Cards")
                         font.family: "Verdana"
                         font.pixelSize: 13
                         color: themeLoader.item.selectedLink
@@ -515,7 +515,7 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        dropdown.mainWindow.compact = !dropdown.mainWindow.compact
+                        dropdown.mainWindow.dense = !dropdown.mainWindow.dense
                     }
                     onEntered: {
                         compactRect.color = themeLoader.item.popupHighlightColor;

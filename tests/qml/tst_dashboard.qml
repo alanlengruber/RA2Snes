@@ -2,6 +2,7 @@ import QtQuick
 import QtTest
 import CustomModels 1.0
 import "../../ui"
+import "../../ui/components"
 
 TestCase {
     name: "GameDashboard"
@@ -84,6 +85,64 @@ TestCase {
     function test_dense_fits_more_columns() {
         var d = makeDashboard({ width: 1000, dense: true });
         compare(d.columns, 4);
+    }
+
+    function test_idle_status_does_not_duplicate_rich_presence() {
+        var d = makeDashboard({ width: 1000 });
+        var status = findChild(d, "statusMessage");
+        verify(status !== null, "status message lives inside the dashboard");
+        compare(status.text, "");
+    }
+
+    function test_status_message_does_not_move_grid() {
+        var d = makeDashboard({ width: 1000 });
+        var before = d.implicitHeight;
+
+        Ra2snes.emitDisplayMessage("Game Loaded", false);
+
+        var status = findChild(d, "statusMessage");
+        verify(status !== null);
+        tryCompare(status, "text", "Game Loaded");
+        compare(d.implicitHeight, before);
+    }
+
+    Component {
+        id: worstCaseCard
+        AchievementCard {
+            title: "A title long enough that it has to be elided at the end"
+            description: "Collect every Kremkoin in the Lost World without losing a single balloon or taking damage from any Kremling"
+            points: 25
+            target: 10
+            value: 4
+            percent: 40
+            achievementType: "missable"
+        }
+    }
+
+    function test_cell_fits_worst_case_card_data() {
+        return [
+            { tag: "normal", dense: false },
+            { tag: "dense",  dense: true }
+        ];
+    }
+
+    // O card preenche a célula menos 4px de margem de cada lado. O pior caso
+    // (descrição em 2 linhas + barra + valor + tipo) tem que caber inteiro.
+    function test_cell_fits_worst_case_card(data) {
+        var d = makeDashboard({ width: 1000, dense: data.dense });
+        var card = createTemporaryObject(worstCaseCard, this,
+                                         { dense: data.dense, width: d.cellWidth - 8 });
+        waitForRendering(card);
+        verify(card.implicitHeight <= d.cellHeight - 8,
+               "card needs " + card.implicitHeight + "px, cell gives " + (d.cellHeight - 8));
+    }
+
+    // 600px é o minimumWidth da janela principal: ali o nome tem que caber inteiro.
+    function test_username_not_truncated_at_minimum_width() {
+        var d = makeDashboard({ width: 600 });
+        var name = findChild(d, "userName");
+        verify(name !== null);
+        verify(!name.truncated, "username elided at 600px");
     }
 
     // Critério 5 da spec: o zoom Ctrl +/- (scale no pai) não muda as colunas.

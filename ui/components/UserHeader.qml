@@ -37,10 +37,17 @@ RowLayout {
         }
     }
 
+    // Ocupa o espaço que sobra e encurta com "…" quando falta: o selo de
+    // modo à direita nunca pode ser empurrado para fora do bloco.
     ColumnLayout {
+        Layout.fillWidth: true
+        Layout.minimumWidth: 0
         spacing: 1
 
         Text {
+            objectName: "userName"
+            Layout.fillWidth: true
+            elide: Text.ElideRight
             text: UserInfoModel.username
             font.bold: true
             font.pixelSize: header.dense ? 14 : 16
@@ -55,17 +62,18 @@ RowLayout {
         }
 
         Text {
+            Layout.fillWidth: true
+            elide: Text.ElideRight
             text: (UserInfoModel.hardcore
                    ? UserInfoModel.hardcore_score
-                   : UserInfoModel.softcore_score) + qsTr(" pontos")
+                   : UserInfoModel.softcore_score) + qsTr(" points")
             font.pixelSize: header.dense ? 10 : 11
             color: header._c("disabledTextColor", "basicTextColor", "#8fa39a")
         }
     }
 
-    Item { Layout.fillWidth: true }
-
     Rectangle {
+        objectName: "modePill"
         Layout.preferredHeight: 20
         Layout.preferredWidth: modeLabel.implicitWidth + 16
         radius: 10

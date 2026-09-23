@@ -76,7 +76,7 @@ ApplicationWindow {
     property bool setupFinished: false
     property bool loadedThemes: false
     property bool allowIcons: UserInfoModel.icons
-    property bool compact: UserInfoModel.compact
+    property bool dense: UserInfoModel.compact
     property int errorHeight: 0
     property var currentTheme: UserInfoModel.theme
     property var bannerPopup: null
@@ -278,7 +278,7 @@ ApplicationWindow {
             scale: 1
             Loader {
                 id: mainLoader
-                width: Math.min(mainWindow.width, 900)
+                width: mainWindow.width
                 active: false
                 Component.onCompleted: {
                     mainWindow.setupTheme();
@@ -297,21 +297,6 @@ ApplicationWindow {
                 Component.onCompleted: {
                     popupLoader.setSource(
                         "./popupmenu.qml",
-                        { mainWindow: mainWindow }
-                    )
-                }
-            }
-            Loader {
-                id: errorLoader
-                width: parent.width
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.leftMargin: mainWindow.compact ? 20 : 164
-                anchors.topMargin: mainWindow.compact ? 100 : 128
-                z: 21
-                Component.onCompleted: {
-                    errorLoader.setSource(
-                        "./errormessage.qml",
                         { mainWindow: mainWindow }
                     )
                 }
@@ -486,23 +471,19 @@ ApplicationWindow {
             mainWindow.iconsPopup.close();
             mainWindow.iconsPopup = null;
         }
-        Ra2snes.saveUISettings(windowWidth, windowHeight, compact, b, mainWindow.allowIcons, i, mainWindow.currentTheme);
+        Ra2snes.saveUISettings(windowWidth, windowHeight, dense, b, mainWindow.allowIcons, i, mainWindow.currentTheme);
     }
 
     Component.onCompleted: {
         mainLoader.setSource(
-            mainWindow.compact ? "./compact.qml" : "./noncompact.qml",
-            { mainWindow: mainWindow }
+            "./GameDashboard.qml",
+            { mainWindow: mainWindow, dense: mainWindow.dense }
         )
     }
 
-    onCompactChanged: {
-        mainLoader.setSource(
-            mainWindow.compact ? "./compact.qml" : "./noncompact.qml",
-            { mainWindow: mainWindow }
-        )
-        if(errorLoader.item)
-            errorLoader.item.updateMessage();
+    onDenseChanged: {
+        if (mainLoader.item)
+            mainLoader.item.dense = mainWindow.dense;
     }
 
     onAllowIconsChanged: {
