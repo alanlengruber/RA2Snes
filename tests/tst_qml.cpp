@@ -1,6 +1,8 @@
 #include <QtQuickTest>
 #include <QQmlEngine>
 #include <QTemporaryDir>
+#include <QDir>
+#include <QFile>
 #include "userinfomodel.h"
 #include "gameinfomodel.h"
 #include "achievementmodel.h"
@@ -71,6 +73,17 @@ signals:
 
 private:
     QString m_richPresence = QStringLiteral("Kong Quest - Gangplank Galley");
+
+public:
+    FakeRa2snes()
+    {
+        // Um tema "de terceiro" na pasta themes/ do app, como um usuário instalaria.
+        QDir(m_appDir.path()).mkpath(QStringLiteral("themes"));
+        QFile::copy(QStringLiteral(RA2SNES_TEST_FIXTURES "/LegacyDark.qml"),
+                    m_appDir.path() + QStringLiteral("/themes/LegacyDark.qml"));
+    }
+
+private:
     // Pasta de app vazia: a janela varre themes/ e sounds/ dela.
     QTemporaryDir m_appDir;
 };
@@ -88,6 +101,8 @@ public:
     }
 
     Q_INVOKABLE void emitBeaten() { emit GameInfoModel::instance()->beatenGame(); }
+    Q_INVOKABLE void setTheme(const QString &name) { UserInfoModel::instance()->theme(name); }
+    Q_INVOKABLE void setCompact(bool compact) { UserInfoModel::instance()->compact(compact); }
     Q_INVOKABLE void emitMastered() { emit GameInfoModel::instance()->masteredGame(); }
 };
 

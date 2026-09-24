@@ -6,6 +6,7 @@ import "./components"
 
 Item {
     id: dashboard
+    objectName: "dashboard"
 
     property var mainWindow
     property bool dense: false

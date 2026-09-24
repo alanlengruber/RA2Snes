@@ -23,5 +23,6 @@ qt_add_executable(tst_qml
     ${CMAKE_SOURCE_DIR}/rastructs.h
 )
 target_include_directories(tst_qml PRIVATE ${CMAKE_SOURCE_DIR})
+target_compile_definitions(tst_qml PRIVATE RA2SNES_TEST_FIXTURES="${CMAKE_CURRENT_SOURCE_DIR}/qml/fixtures")
 target_link_libraries(tst_qml PRIVATE Qt6::QuickTest Qt6::Qml Qt6::Quick)
 add_test(NAME qml COMMAND tst_qml -input ${CMAKE_CURRENT_SOURCE_DIR}/qml)
