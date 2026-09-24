@@ -20,6 +20,14 @@ Run both QUsb2Snes and RA2Snes.
 
 Once RA2Snes has been run for the first time, the settings.ini file is created in the same directory as RA2Snes. This file holds all program settings, including your saved login information.
 
+### Layout and Density
+
+The window adapts to its width: resizing it changes how many columns of achievements fit on screen. The **Compact Cards** option in the menu controls how dense the achievement cards are; in earlier versions it switched between two different layouts. The existing `Compact` setting in settings.ini keeps working and now selects compact cards.
+
+### Unlock Notifications
+
+When an achievement unlocks, a notification slides up in the bottom-right corner of the main window and of the banner window. Beating or mastering a game shows a larger notification. Several unlocks at once are shown one after another.
+
 ### Currently Unsupported Games
 
 SD2Snes cannot currently read the memory of Super Game Boy and games with certain [enhancement chips](https://en.wikipedia.org/wiki/List_of_Super_NES_enhancement_chips).
