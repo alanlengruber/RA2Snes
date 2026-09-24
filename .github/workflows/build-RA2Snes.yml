@@ -21,7 +21,7 @@ jobs:
         qml6-module-qt5compat-graphicaleffects libqt6svg6
 
     - name: Configure CMake
-      run: cmake -S . -B build -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6
+      run: cmake -S . -B build -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DRA2SNES_BUILD_TESTS=OFF
 
     - name: Build project
       run: cmake --build build --config Release
@@ -49,7 +49,7 @@ jobs:
         
     - name: Configure CMake
       run: |
-        cmake -S . -B build -DCMAKE_PREFIX_PATH="$(brew --prefix qt)/lib/cmake/Qt6"
+        cmake -S . -B build -DCMAKE_PREFIX_PATH="$(brew --prefix qt)/lib/cmake/Qt6" -DRA2SNES_BUILD_TESTS=OFF
 
     - name: Build project
       run: cmake --build build --config Release
@@ -92,7 +92,7 @@ jobs:
           arch: x64
           
       - name: Configure CMake
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRA2SNES_BUILD_TESTS=OFF
 
       - name: Build project
         run: cmake --build build --config Release
