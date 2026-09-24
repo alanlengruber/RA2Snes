@@ -93,6 +93,7 @@ set(PROJECT_SOURCES
     version.h
     networkcachemanager.cpp
     networkcachemanager.h
+    avatarurl.h
 )
 
 if(WIN32)

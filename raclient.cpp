@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include "rc_version.h"
 #include "version.h"
+#include "avatarurl.h"
 
 const QString RAClient::baseUrl = "https://retroachievements.org/";
 const QString RAClient::mediaUrl = "https://media.retroachievements.org/";
@@ -432,7 +433,7 @@ void RAClient::handleLoginResponse(const QJsonObject& jsonObject)
     userinfo_model->token(jsonObject["Token"].toString());
     userinfo_model->softcore_score(jsonObject["SoftcoreScore"].toInt());
     userinfo_model->hardcore_score(jsonObject["Score"].toInt());
-    userinfo_model->pfp((mediaUrl + "UserPic/" + userinfo_model->username() + ".png?v=" + pfpCacheToken));
+    userinfo_model->pfp(avatarUrlFromLogin(jsonObject, mediaUrl, pfpCacheToken));
     userinfo_model->link((baseUrl + "user/" + userinfo_model->username()));
     sendUserData();
     emit loginSuccess(m_refresh);

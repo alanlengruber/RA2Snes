@@ -10,6 +10,14 @@ target_include_directories(tst_achievementmodel PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(tst_achievementmodel PRIVATE Qt6::Core Qt6::Test)
 add_test(NAME achievementmodel COMMAND tst_achievementmodel)
 
+qt_add_executable(tst_avatarurl
+    tst_avatarurl.cpp
+    ${CMAKE_SOURCE_DIR}/avatarurl.h
+)
+target_include_directories(tst_avatarurl PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(tst_avatarurl PRIVATE Qt6::Core Qt6::Test)
+add_test(NAME avatarurl COMMAND tst_avatarurl)
+
 qt_add_executable(tst_qml
     tst_qml.cpp
     ${CMAKE_SOURCE_DIR}/userinfomodel.cpp
