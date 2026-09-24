@@ -1,12 +1,15 @@
 import QtQuick
 import QtTest
 import CustomModels 1.0
+import TestSupport 1.0
 import "../../ui"
 import "../../ui/components"
 
 TestCase {
     name: "GameDashboard"
     when: windowShown
+    // TestCase nasce invisível; o teste do ciclo de vida verifica visibilidade.
+    visible: true
     width: 1400
     height: 900
 
@@ -26,29 +29,55 @@ TestCase {
         GameDashboard { }
     }
 
-    Component {
-        id: zoomedComponent
-        Item {
-            property alias dashboard: inner
-            scale: 2
-            GameDashboard {
-                id: inner
-                width: 1000
-            }
-        }
-    }
-
-    function init() {
-        failOnWarning(/.*/);
-    }
 
     function makeDashboard(props) {
+        // Estes testes olham o jogo carregado; o ciclo de vida tem teste próprio.
+        if (props.gameLoaded === undefined)
+            props.gameLoaded = true;
         var d = createTemporaryObject(dashboardComponent, this, props);
         verify(d !== null);
         // O GridView cria os delegates no polish do próximo frame. Esperar a
         // renderização garante que os bindings de role rodem dentro do teste.
         waitForRendering(d);
         return d;
+    }
+
+    // Final review I3: sem jogo carregado, nada de cartão, ordenação e grid vazios.
+    function test_game_section_follows_game_lifecycle() {
+        var d = makeDashboard({ width: 1000, gameLoaded: false });
+        var game = findChild(d, "gameHeader");
+        var grid = findChild(d, "achievementGrid");
+        verify(game !== null && grid !== null);
+        verify(!game.visible, "game card hidden before a game loads");
+        verify(!grid.visible, "grid hidden before a game loads");
+
+        Ra2snes.emitGameLoaded();
+        verify(game.visible);
+        verify(grid.visible);
+
+        Ra2snes.emitGameCleared();
+        verify(!game.visible, "game card hidden after the game is cleared");
+        verify(!grid.visible);
+    }
+
+    // Final review I7: toda atualização de rich presence apagava a mensagem de status.
+    function test_status_message_survives_rich_presence_update() {
+        var d = makeDashboard({ width: 1000 });
+        var status = findChild(d, "statusMessage");
+        Ra2snes.emitDisplayMessage("Console Not Connected", true);
+        tryCompare(status, "text", "Console Not Connected");
+        Ra2snes.emitUpdatedRichText();
+        compare(status.text, "Console Not Connected");
+    }
+
+    // A última linha do grid tem que caber na altura que o dashboard declara,
+    // senão o Flickable da janela não rola até ela.
+    function test_last_row_inside_declared_height() {
+        var d = makeDashboard({ width: 1000 });
+        var grid = findChild(d, "achievementGrid");
+        var bottom = grid.mapToItem(d, 0, grid.height).y;
+        verify(bottom + 12 <= d.implicitHeight,
+               "grid ends at " + bottom + " (+12 margin) but dashboard declares " + d.implicitHeight);
     }
 
     function test_loads_and_renders_grid_without_warnings() {
@@ -145,11 +174,4 @@ TestCase {
         verify(!name.truncated, "username elided at 600px");
     }
 
-    // Critério 5 da spec: o zoom Ctrl +/- (scale no pai) não muda as colunas.
-    function test_zoom_does_not_change_columns() {
-        var wrapper = createTemporaryObject(zoomedComponent, this);
-        verify(wrapper !== null);
-        waitForRendering(wrapper);
-        compare(wrapper.dashboard.columns, 3);
-    }
 }

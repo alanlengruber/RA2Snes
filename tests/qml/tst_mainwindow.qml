@@ -71,6 +71,7 @@ TestCase {
         TestHooks.setTheme("LegacyDark");
         try {
             var w = openMainWindow();
+            Ra2snes.emitGameLoaded();
             var grid = null;
             var d = dashboardOf(w);
             // Primeiro card do grid: cardBackgroundColor ausente → mainWindowLightAccentColor.
@@ -83,7 +84,7 @@ TestCase {
             // O toast também cai nos fallbacks: borda dourada do contrato antigo.
             var feed = findChild(w.contentItem, "unlockToasts");
             var spy = spyOn(feed);
-            Ra2snes.emitEnableModeSwitching();
+            Ra2snes.emitGameLoaded();
             TestHooks.emitMastered();
             compare(spy.count, 1);
             verify(feed._current !== null);
@@ -107,6 +108,39 @@ TestCase {
         return null;
     }
 
+    // O C++ checa "masterizado" antes de liberar o setup: isso não é conquista ao vivo.
+    function test_game_awards_ignored_before_setup() {
+        var w = openMainWindow();
+        var spy = spyOn(findChild(w.contentItem, "unlockToasts"));
+        verify(!w.setupFinished);
+        TestHooks.emitMastered();
+        compare(spy.count, 0);
+    }
+
+    // Final review I3: desconectar ou voltar ao menu desliga o setup, o que
+    // esconde o hud e limpa os ícones de challenge que ficariam presos na tela.
+    function test_cleared_game_resets_setup() {
+        var w = openMainWindow();
+        Ra2snes.emitGameLoaded();
+        verify(w.setupFinished);
+        Ra2snes.emitGameCleared();
+        verify(!w.setupFinished, "setup still marked finished after the game was cleared");
+    }
+
+    // Final review I6: zoom reflui as colunas como num navegador, em vez de
+    // empurrar o menu para fora da janela.
+    function test_zoom_keeps_menu_on_screen() {
+        var w = openMainWindow();
+        var group = findChild(w.contentItem, "mainGroup");
+        var menu = findChild(w.contentItem, "menuButton");
+        verify(group !== null && menu !== null);
+        group.scale = 1.25;
+        waitForRendering(w.contentItem);
+        var right = menu.mapToItem(null, menu.width, 0).x;
+        verify(right <= w.width, "menu ends at " + right + " in a " + w.width + "px window");
+        fuzzyCompare(dashboardOf(w).width * group.scale, w.width, 1);
+    }
+
     function test_loads_dashboard_without_warnings() {
         openMainWindow();
     }
@@ -117,7 +151,7 @@ TestCase {
         verify(feed !== null, "main window has an unlock toast feed");
         var spy = spyOn(feed);
 
-        Ra2snes.emitEnableModeSwitching();
+        Ra2snes.emitGameLoaded();
         verify(w.setupFinished);
         verify(TestHooks.unlock(1005));
 
@@ -133,7 +167,7 @@ TestCase {
         verify(feed !== null, "main window has an unlock toast feed");
         var spy = spyOn(feed);
 
-        Ra2snes.emitEnableModeSwitching();
+        Ra2snes.emitGameLoaded();
         w.allowIcons = false;
         verify(TestHooks.unlock(1007));
 

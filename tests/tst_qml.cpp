@@ -22,8 +22,10 @@ class FakeRa2snes : public QObject
     Q_PROPERTY(bool websocket READ websocket WRITE enableWebSocket NOTIFY websocketChanged)
     Q_PROPERTY(bool customFirmware READ customFirmware NOTIFY firmwareChanged)
     Q_PROPERTY(QString richPresence READ richPresence NOTIFY updatedRichText)
+    Q_PROPERTY(int refreshCalls READ refreshCalls NOTIFY refreshCallsChanged)
 
 public:
+    int refreshCalls() const { return m_refreshCalls; }
     QString console() const { return QStringLiteral("SNES"); }
     QString appDirPath() const { return m_appDir.path(); }
     QString version() const { return QStringLiteral("test"); }
@@ -42,13 +44,25 @@ public:
     // No app real, isto marca o fim do carregamento do jogo (setupFinished).
     Q_INVOKABLE void emitEnableModeSwitching() { emit enableModeSwitching(); }
 
+    // Mesma ordem do ra2snes.cpp ao terminar de carregar um jogo (sessionStarted).
+    Q_INVOKABLE void emitGameLoaded()
+    {
+        emit achievementModelReady();
+        emit enableModeSwitching();
+    }
+
+    // Console desconectado / volta ao menu: o app limpa as conquistas.
+    Q_INVOKABLE void emitGameCleared() { emit clearedAchievements(); }
+
+    Q_INVOKABLE void emitUpdatedRichText() { emit updatedRichText(); }
+
 public slots:
     void signIn(const QString &, const QString &, const bool &) {}
     void signOut() {}
     void saveUISettings(const int &, const int &, const bool &, const bool &, const bool &, const bool &, const QString) {}
     void changeMode() {}
     void autoChange(const bool &) {}
-    void refreshRAData() {}
+    void refreshRAData() { ++m_refreshCalls; emit refreshCallsChanged(); }
     void beginUpdate() {}
     void ignoreUpdates(bool) {}
     void enableWebSocket(bool) {}
@@ -70,9 +84,11 @@ signals:
     void updatedRichText();
     void websocketChanged();
     void firmwareChanged();
+    void refreshCallsChanged();
 
 private:
     QString m_richPresence = QStringLiteral("Kong Quest - Gangplank Galley");
+    int m_refreshCalls = 0;
 
 public:
     FakeRa2snes()
@@ -103,6 +119,8 @@ public:
     Q_INVOKABLE void emitBeaten() { emit GameInfoModel::instance()->beatenGame(); }
     Q_INVOKABLE void setTheme(const QString &name) { UserInfoModel::instance()->theme(name); }
     Q_INVOKABLE void setCompact(bool compact) { UserInfoModel::instance()->compact(compact); }
+    Q_INVOKABLE void setBeaten(bool beaten) { GameInfoModel::instance()->beaten(beaten); }
+    Q_INVOKABLE void setMastered(bool mastered) { GameInfoModel::instance()->mastered(mastered); }
     Q_INVOKABLE void emitMastered() { emit GameInfoModel::instance()->masteredGame(); }
 };
 
@@ -123,6 +141,7 @@ public slots:
         game->point_count(100);
         game->point_total(835);
         game->missable_count(1);
+        game->md5hash(QStringLiteral("d323e6bb4ccc85fd7b416f58350bc1a2"));
 
         UserInfoModel *user = UserInfoModel::instance();
         user->username(QStringLiteral("SuperNinTaylor"));
@@ -139,7 +158,8 @@ public slots:
         // tipos com ícone — cada combinação exercita um ramo do delegate.
         const QStringList titles = {
             "DK: Donkey Kong", "Kremling Kurrency", "KONGQuest", "Lost World",
-            "Bramble Scramble", "Krow's Nest", "Hot-Head Hop", "Kleever's Kiln"
+            "Bramble Scramble", "Krow's Nest", "Hot-Head Hop", "Kleever's Kiln",
+            "Mainbrace Mayhem", "Gangplank Galley", "Lockjaw's Locker", "Topsail Trouble"
         };
         const QStringList types = { "", "missable", "progression", "win_condition" };
         QList<AchievementInfo> achievements;

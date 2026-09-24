@@ -26,8 +26,6 @@ ApplicationWindow {
         sequence: "Ctrl+R"
         onActivated: {
             let content = content1;
-            if(content2.visible)
-                content = content2
             if(content.rotation === 270)
                 content.rotation = 0;
             else
@@ -46,7 +44,10 @@ ApplicationWindow {
     }
 
     property string themeSource: "./themes/Dark.qml"
-    property var achievementQueue: []
+    // A janela principal, passada pelo popupmenu ao abrir a banner. Os toasts
+    // só valem depois que o jogo termina de carregar (setupFinished): antes
+    // disso o app emite "masterizado/zerado" para jogos já terminados.
+    property var mainWindow: null
     Loader {
         id: themeLoader
         source: banner.themeSource
@@ -67,6 +68,7 @@ ApplicationWindow {
     property real scaleFactor: Math.min(width / baseWidth, height / baseHeight)
     Item {
         id: content1
+        objectName: "gamePanel"
         width: 320
         height: 180
         anchors.centerIn: parent
@@ -161,162 +163,32 @@ ApplicationWindow {
         }
     }
 
-    Item {
-        id: content2
-        width: 320
-        height: 180
-        anchors.centerIn: parent
-        scale: banner.scaleFactor
-        transformOrigin: Item.Center
-        rotation: 0
-        visible: !content1.visible
-
-        property real layoutScale: 1.0
-
-        function resetLayout() {
-            content2.layoutScale = 1.0;
-        }
-
-        ColumnLayout {
-            anchors.centerIn: parent
-            spacing: 0
-
-            onImplicitWidthChanged: {
-                if(implicitWidth < 300) {
-                    content2.layoutScale += 0.05;
-                }
-                else if(implicitWidth > 320 && content2.layoutScale > 0.0) {
-                    content2.layoutScale -= 0.05;
-                }
-            }
-
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 8
-
-                Image {
-                    id: badge
-                    Layout.preferredWidth: 64 * content2.layoutScale
-                    Layout.preferredHeight: Layout.preferredWidth
-                    fillMode: Image.PreserveAspectFit
-                    cache: true
-                    asynchronous: true
-                }
-
-                ColumnLayout {
-                    spacing: 0
-                    Layout.alignment: Qt.AlignVCenter
-
-                    RowLayout {
-                        spacing: 4
-                        Layout.fillWidth: true
-
-                        Text {
-                            id: titleText
-                            font.pixelSize: 13 * content2.layoutScale
-                            font.family: "Verdana"
-                            color: themeLoader.item.linkColor
-                            Layout.maximumWidth: 214 - points.implicitWidth
-                            elide: Text.ElideRight
-                            onTextChanged: {
-                                content2.resetLayout();
-                            }
-                        }
-
-                        Text {
-                            id: points
-                            font.pixelSize: 13 * content2.layoutScale
-                            font.family: "Verdana"
-                            color: themeLoader.item.basicTextColor
-                        }
-                    }
-
-                    Text {
-                        id: description
-                        font.pixelSize: 13 * content2.layoutScale
-                        color: themeLoader.item.basicTextColor
-                        elide: Text.ElideRight
-                        wrapMode: Text.WordWrap
-                        Layout.maximumWidth: 240
-                        maximumLineCount: 2
-                        font.family: "Verdana"
-                    }
-
-                    Item {
-                        Layout.preferredHeight: {
-                            let h = 36 - description.implicitHeight
-                            if(h < 0)
-                                0;
-                            else
-                                h;
-                        }
-                    }
-
-                    Text {
-                        id: unlockedTime
-                        font.pixelSize: 10 * content2.layoutScale
-                        color: themeLoader.item.timeStampColor
-                        wrapMode: Text.WordWrap
-                        Layout.alignment: Qt.AlignLeft
-                        Layout.maximumWidth: parent.width
-                        font.family: "Verdana"
-                    }
-                }
-            }
-        }
-    }
-
-    function runQueue()
-    {
-        let achievement = banner.achievementQueue.shift();
-        let len = banner.achievementQueue.length
-        badge.source = achievement.badgeUrl;
-        titleText.text = achievement.title;
-        points.text = "(" + achievement.points + ")";
-        description.text = achievement.description;
-        unlockedTime.text = achievement.timeUnlockedString;
-        content1.visible = false;
-        if(len > 1)
-            queueTimer.interval = 1500;
-        queueTimer.restart();
-    }
-
-    Timer {
-        id: queueTimer
-        interval: 3000
-        repeat: false
-        running: false
-        onTriggered: {
-            if(banner.achievementQueue.length === 0)
-                content1.visible = true;
-            else
-                banner.runQueue();
-        }
-    }
-
-    Connections {
-        target: AchievementModel
-        function onUnlockedChanged(index) {
-            banner.achievementQueue.push(AchievementModel.get(index));
-            if(!queueTimer.running)
-                banner.runQueue();
-        }
-    }
-
     ThemeResolver {
         id: bannerToastResolver
         theme: themeLoader.item
     }
 
     // A banner é a janela capturada no OBS: é onde o público vê a conquista.
-    UnlockToasts {
-        objectName: "unlockToasts"
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.margins: 8
-        width: Math.min(300, banner.width - 16)
-        height: 70
+    // O quadro tem o mesmo tamanho, escala e rotação do painel do jogo, então
+    // o toast gira com Ctrl+R e cresce junto numa banner grande ou em tela cheia.
+    Item {
+        width: 320
+        height: 180
+        anchors.centerIn: parent
+        scale: banner.scaleFactor
+        rotation: content1.rotation
+        transformOrigin: Item.Center
         z: 200
-        resolver: bannerToastResolver
+
+        UnlockToasts {
+            objectName: "unlockToasts"
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 8
+            width: 300
+            height: 70
+            active: banner.mainWindow ? banner.mainWindow.setupFinished : false
+            resolver: bannerToastResolver
+        }
     }
 }

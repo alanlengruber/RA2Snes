@@ -32,7 +32,8 @@ Item {
         }
 
         // No layout compacto antigo, a linha de status ociosa exibia o rich
-        // presence. O GameHeader agora o mostra sempre, então ociosa ela fica vazia.
+        // presence. O GameHeader agora o mostra sempre, então ociosa ela fica vazia
+        // — e uma atualização de rich presence não apaga mais a mensagem da vez.
         function showRichPresence()
         {
             errorMessage.text = "";
@@ -76,14 +77,6 @@ Item {
             errorMessage.text = error;
             errorMessage.opacity = 1;
             fadeOutTimer.restart();
-        }
-
-        Connections {
-            target: Ra2snes
-            function onUpdatedRichText()
-            {
-                errorMessage.showRichPresence();
-            }
         }
 
         Connections {

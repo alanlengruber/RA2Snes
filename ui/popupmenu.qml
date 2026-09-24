@@ -930,7 +930,7 @@ Item {
 
                             function createPopup() {
                                 if (component.status === Component.Ready) {
-                                    dropdown.mainWindow.bannerPopup = component.createObject(null);
+                                    dropdown.mainWindow.bannerPopup = component.createObject(null, { mainWindow: dropdown.mainWindow });
                                     dropdown.mainWindow.bannerPopup.visible = true;
                                     dropdown.mainWindow.bannerPopup.themeSource = themeLoader.source;
 

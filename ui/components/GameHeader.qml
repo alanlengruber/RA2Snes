@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import CustomModels 1.0
 
 Rectangle {
@@ -76,6 +77,14 @@ Rectangle {
                     Behavior on color { ColorAnimation { duration: 180 } }
 
                     HoverHandler { id: gameHover; cursorShape: Qt.PointingHandCursor }
+
+                    // O hash identifica a versão exata da ROM; os layouts antigos
+                    // o mostravam ao passar o mouse no título.
+                    ToolTip {
+                        objectName: "gameTitleTooltip"
+                        visible: gameHover.hovered && text !== ""
+                        text: GameInfoModel.md5hash
+                    }
                     TapHandler { onTapped: header.linkActivated(GameInfoModel.game_link) }
                 }
 
@@ -139,6 +148,15 @@ Rectangle {
                 font.pixelSize: header.dense ? 12 : 14
                 color: header._c("toastPointsColor", "progressBarColor", "#6ee7a8")
             }
+
+            // O botão antigo (refreshbutton.qml), que recarrega os dados do RA.
+            Loader {
+                objectName: "refreshButton"
+                Layout.alignment: Qt.AlignTop
+                Layout.preferredWidth: 30
+                Layout.preferredHeight: 30
+                source: "../refreshbutton.qml"
+            }
         }
 
         // Barra de progresso por quantidade de conquistas
@@ -159,11 +177,38 @@ Rectangle {
             }
         }
 
-        Text {
+        RowLayout {
             Layout.fillWidth: true
-            text: GameInfoModel.point_count + " / " + GameInfoModel.point_total + qsTr(" points")
-            font.pixelSize: 10
-            color: header._c("timeStampColor", "disabledTextColor", "#7e7e7e")
+            spacing: 8
+
+            Text {
+                Layout.fillWidth: true
+                elide: Text.ElideRight
+                text: GameInfoModel.point_count + " / " + GameInfoModel.point_total + qsTr(" points")
+                font.pixelSize: 10
+                color: header._c("timeStampColor", "disabledTextColor", "#7e7e7e")
+            }
+
+            Text {
+                objectName: "completionStatus"
+                text: GameInfoModel.mastered ? qsTr("Mastered")
+                    : GameInfoModel.beaten ? qsTr("Beaten")
+                    : qsTr("Unfinished")
+                font.bold: true
+                font.pixelSize: 10
+                color: GameInfoModel.mastered
+                       ? header._c("statusMasteredTextColor", "progressBarColor", "#ffd700")
+                       : GameInfoModel.beaten
+                         ? header._c("statusBeatenTextColor", "basicTextColor", "#d4d4d4")
+                         : header._c("statusUnfinishedTextColor", "timeStampColor", "#7e7e7e")
+            }
+
+            Text {
+                objectName: "firmware"
+                text: qsTr("Firmware: ") + (Ra2snes.customFirmware ? qsTr("Custom") : qsTr("Standard"))
+                font.pixelSize: 10
+                color: header._c("timeStampColor", "disabledTextColor", "#7e7e7e")
+            }
         }
 
         // Rich presence, sempre visível junto da barra

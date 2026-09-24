@@ -22,7 +22,40 @@ Item {
     // muda entre Linux e Windows. A sonda abaixo tem o conteúdo de pior caso.
     readonly property real cellHeight: Math.ceil(sizeProbe.implicitHeight) + 8
 
-    implicitHeight: column.implicitHeight
+    // Verdadeiro entre o carregamento de um jogo e sua limpeza (console
+    // desconectado, volta ao menu). Sem jogo, só o bloco do usuário aparece.
+    property bool gameLoaded: false
+
+    // As margens do ColumnLayout (2 × 12) entram na conta, senão a última linha
+    // do grid fica fora da área que o Flickable da janela consegue rolar.
+    implicitHeight: column.implicitHeight + 24
+
+    Connections {
+        target: Ra2snes
+
+        function onAchievementModelReady() {
+            // Cada jogo começa com ordenação e filtros padrão, como antes; o
+            // Loader do sorting.qml é recriado junto, então os checkboxes também.
+            sortedAchievementModel.clearMissableFilter();
+            sortedAchievementModel.clearUnlockedFilter();
+            sortedAchievementModel.sortByNormal();
+            dashboard.gameLoaded = true;
+            if (dashboard.mainWindow)
+                dashboard.mainWindow.setupFinished = true;
+        }
+
+        function onClearedAchievements() {
+            dashboard.gameLoaded = false;
+            // Esconde o hud, o que remove os ícones de challenge da sessão anterior.
+            if (dashboard.mainWindow)
+                dashboard.mainWindow.setupFinished = false;
+        }
+    }
+
+    Component.onCompleted: {
+        if (dashboard.mainWindow && dashboard.mainWindow.setupFinished)
+            dashboard.gameLoaded = true;
+    }
 
     // Pior caso de altura: descrição em 2 linhas + barra de progresso + valor +
     // linha de tipo. Transparente e desabilitada; existe só para ser medida.
@@ -89,6 +122,8 @@ Item {
             }
 
             GameHeader {
+                objectName: "gameHeader"
+                visible: dashboard.gameLoaded
                 Layout.fillWidth: true
                 resolver: themeResolver
                 dense: dashboard.dense
@@ -99,11 +134,15 @@ Item {
 
         Loader {
             Layout.fillWidth: true
+            active: dashboard.gameLoaded
+            visible: active
             source: "./sorting.qml"
         }
 
         GridView {
             id: grid
+            objectName: "achievementGrid"
+            visible: dashboard.gameLoaded
 
             Layout.fillWidth: true
             Layout.preferredHeight: Math.ceil(count / Math.max(1, dashboard.columns))

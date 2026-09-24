@@ -273,13 +273,17 @@ ApplicationWindow {
         }
         Item {
             id: mainGroup
+            objectName: "mainGroup"
             anchors.centerIn: parent
             width: mainLoader.width
             height: mainLoader.height
             scale: 1
             Loader {
                 id: mainLoader
-                width: mainWindow.width
+                // Zoom estilo navegador: o conteúdo ocupa sempre a janela inteira
+                // (as colunas refluem), em vez de crescer para fora dela e
+                // levar junto o botão do menu.
+                width: mainWindow.width / mainGroup.scale
                 active: false
                 Component.onCompleted: {
                     mainWindow.setupTheme();
@@ -287,6 +291,7 @@ ApplicationWindow {
             }
             Loader {
                 id: popupLoader
+                objectName: "menuButton"
                 anchors.top: parent.top
                 anchors.right: parent.right
                 anchors.topMargin: 10
