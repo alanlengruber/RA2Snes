@@ -141,6 +141,25 @@ TestCase {
         fuzzyCompare(dashboardOf(w).width * group.scale, w.width, 1);
     }
 
+    function windowRect(item) {
+        var p = item.mapToItem(null, 0, 0);
+        var q = item.mapToItem(null, item.width, item.height);
+        return { left: Math.min(p.x, q.x), top: Math.min(p.y, q.y),
+                 right: Math.max(p.x, q.x), bottom: Math.max(p.y, q.y) };
+    }
+
+    // Teste no Windows: o cartão do jogo ficava por baixo do botão do menu.
+    function test_menu_button_does_not_cover_game_card() {
+        var w = openMainWindow();
+        Ra2snes.emitGameLoaded();
+        var game = findChild(w.contentItem, "gameHeader");
+        var menu = findChild(w.contentItem, "menuButton");
+        tryVerify(function() { return game.visible && game.width > 0; });
+        var g = windowRect(game), m = windowRect(menu);
+        var overlaps = g.left < m.right && m.left < g.right && g.top < m.bottom && m.top < g.bottom;
+        verify(!overlaps, "menu " + JSON.stringify(m) + " covers game card " + JSON.stringify(g));
+    }
+
     function test_loads_dashboard_without_warnings() {
         openMainWindow();
     }

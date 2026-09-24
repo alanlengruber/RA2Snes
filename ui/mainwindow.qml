@@ -506,7 +506,11 @@ ApplicationWindow {
     Component.onCompleted: {
         mainLoader.setSource(
             "./GameDashboard.qml",
-            { mainWindow: mainWindow, dense: mainWindow.dense }
+            {
+                mainWindow: mainWindow,
+                dense: mainWindow.dense,
+                topRightInset: popupLoader.width + popupLoader.anchors.rightMargin
+            }
         )
     }
 

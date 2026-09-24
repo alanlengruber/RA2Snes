@@ -26,6 +26,10 @@ Item {
     // desconectado, volta ao menu). Sem jogo, só o bloco do usuário aparece.
     property bool gameLoaded: false
 
+    // Quanto a janela ocupa no canto superior direito (o botão do menu, que
+    // fica por cima do dashboard). O cabeçalho recua isso mais um respiro.
+    property real topRightInset: 0
+
     // As margens do ColumnLayout (2 × 12) entram na conta, senão a última linha
     // do grid fica fora da área que o Flickable da janela consegue rolar.
     implicitHeight: column.implicitHeight + 24
@@ -87,6 +91,8 @@ Item {
         // Cabeçalho: empilha abaixo de 520px, lado a lado acima.
         GridLayout {
             Layout.fillWidth: true
+            // 12 é a margem do próprio ColumnLayout; 8 é o respiro até o botão.
+            Layout.rightMargin: dashboard.topRightInset > 0 ? dashboard.topRightInset - 12 + 8 : 0
             columns: dashboard.headerMode === "stacked" ? 1 : 2
             columnSpacing: 10
             rowSpacing: 10
