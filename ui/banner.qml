@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import CustomModels 1.0
+import "./components"
 
 ApplicationWindow {
     id: banner
@@ -300,5 +301,22 @@ ApplicationWindow {
             if(!queueTimer.running)
                 banner.runQueue();
         }
+    }
+
+    ThemeResolver {
+        id: bannerToastResolver
+        theme: themeLoader.item
+    }
+
+    // A banner é a janela capturada no OBS: é onde o público vê a conquista.
+    UnlockToasts {
+        objectName: "unlockToasts"
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 8
+        width: Math.min(300, banner.width - 16)
+        height: 70
+        z: 200
+        resolver: bannerToastResolver
     }
 }

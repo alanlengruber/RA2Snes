@@ -31,6 +31,7 @@
         <file>ui/components/GameHeader.qml</file>
         <file>ui/components/AchievementToast.qml</file>
         <file>ui/components/ToastStack.qml</file>
+        <file>ui/components/UnlockToasts.qml</file>
         <file>ui/GameDashboard.qml</file>
         <file>ui/icons.qml</file>
     </qresource>

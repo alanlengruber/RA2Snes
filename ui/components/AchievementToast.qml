@@ -17,6 +17,10 @@ Rectangle {
     property real slideOffset: 30
     property real glowStrength: 0
 
+    // Quem posiciona o toast diz quanto espaço há (a janela banner tem 320px);
+    // títulos que não cabem encurtam com "…".
+    property real maximumWidth: Infinity
+
     signal finished()
 
     readonly property bool isGameAward: variant === "beaten" || variant === "mastered"
@@ -37,6 +41,7 @@ Rectangle {
 
     implicitWidth: layout.implicitWidth + 24
     implicitHeight: layout.implicitHeight + 18
+    width: Math.min(implicitWidth, maximumWidth)
     radius: 12
     opacity: 0
     transformOrigin: Item.Center
@@ -66,7 +71,11 @@ Rectangle {
 
     RowLayout {
         id: layout
-        anchors.centerIn: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
         spacing: 10
 
         // O wrapper existe para que escala e rotação apliquem ao badge E ao
@@ -100,6 +109,8 @@ Rectangle {
         }
 
         ColumnLayout {
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
             spacing: 2
 
             Text {
@@ -113,6 +124,8 @@ Rectangle {
             }
 
             Text {
+                Layout.fillWidth: true
+                elide: Text.ElideRight
                 text: toast.title
                 font.bold: true
                 font.pixelSize: toast.isGameAward ? 16 : 13

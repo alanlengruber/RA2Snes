@@ -88,6 +88,7 @@ Item {
         AchievementToast {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
+            maximumWidth: stack.width
         }
     }
 }

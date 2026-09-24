@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import CustomModels 1.0
 import QtMultimedia
 import Qt.labs.folderlistmodel
+import "./components"
 
 // I apologize less to anyone looking at my qml
 
@@ -309,6 +310,29 @@ ApplicationWindow {
         ScrollBar.horizontal: ScrollBar {
             policy: ScrollBar.AsNeeded
         }
+    }
+
+    ThemeResolver {
+        id: toastResolver
+        theme: themeLoader.item
+    }
+
+    // Fora do hud de propósito: desligar "Window Icons" esconde o hud inteiro,
+    // e isso não pode levar junto as notificações de conquista.
+    UnlockToasts {
+        id: unlockToasts
+        objectName: "unlockToasts"
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 20
+        // Acima dos ícones de challenge quando estão na tela: eles indicam a
+        // conquista prestes a completar, e cobri-los justo agora seria o pior momento.
+        anchors.bottomMargin: 10 + (hud.visible && challenges.height > 0 ? challenges.height + 10 : 0)
+        width: Math.min(340, parent.width - 40)
+        height: 90
+        z: 101
+        active: mainWindow.setupFinished
+        resolver: toastResolver
     }
 
     Item {

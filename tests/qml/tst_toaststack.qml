@@ -59,6 +59,14 @@ TestCase {
         compare(stack.pending, 0);
     }
 
+    // A janela banner tem 320px: o toast não pode passar da largura da fila.
+    function test_toast_never_wider_than_stack() {
+        stack.push(makeData("The Legend of Zelda: A Link to the Past - Master Sword"));
+        verify(stack._current !== null);
+        verify(stack._current.width <= stack.width,
+               "toast is " + stack._current.width + "px in a " + stack.width + "px stack");
+    }
+
     function test_idle_after_drain() {
         stack.push(makeData("A"));
         tryCompare(stack, "busy", false, 30000);

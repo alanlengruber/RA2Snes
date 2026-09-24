@@ -1,18 +1,34 @@
 #include <QtQuickTest>
 #include <QQmlEngine>
+#include <QTemporaryDir>
 #include "userinfomodel.h"
 #include "gameinfomodel.h"
 #include "achievementmodel.h"
 #include "achievementsortfilterproxymodel.h"
 
-// O Ra2snes de verdade arrasta USB, rede e websocket. Os componentes só leem
-// richPresence dele, então um dublê com essa única propriedade basta.
+// O Ra2snes de verdade arrasta USB, rede e websocket. Este dublê imita só a
+// superfície que o QML toca: as propriedades lidas na carga, os slots chamados
+// em clique ou ao fechar a janela (no-ops aqui) e todos os sinais.
 class FakeRa2snes : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString console READ console NOTIFY consoleChanged)
+    Q_PROPERTY(QString appDirPath READ appDirPath CONSTANT)
+    Q_PROPERTY(QString version READ version CONSTANT)
+    Q_PROPERTY(QString latestVersion READ latestVersion NOTIFY newUpdate)
+    Q_PROPERTY(bool ignore READ ignore WRITE ignoreUpdates NOTIFY ignoreChanged)
+    Q_PROPERTY(bool websocket READ websocket WRITE enableWebSocket NOTIFY websocketChanged)
+    Q_PROPERTY(bool customFirmware READ customFirmware NOTIFY firmwareChanged)
     Q_PROPERTY(QString richPresence READ richPresence NOTIFY updatedRichText)
 
 public:
+    QString console() const { return QStringLiteral("SNES"); }
+    QString appDirPath() const { return m_appDir.path(); }
+    QString version() const { return QStringLiteral("test"); }
+    QString latestVersion() const { return QString(); }
+    bool ignore() const { return true; }
+    bool websocket() const { return false; }
+    bool customFirmware() const { return false; }
     QString richPresence() const { return m_richPresence; }
 
     // Os testes disparam as mensagens de status que o Ra2snes real emite.
@@ -21,12 +37,58 @@ public:
         emit displayMessage(message, isError);
     }
 
+    // No app real, isto marca o fim do carregamento do jogo (setupFinished).
+    Q_INVOKABLE void emitEnableModeSwitching() { emit enableModeSwitching(); }
+
+public slots:
+    void signIn(const QString &, const QString &, const bool &) {}
+    void signOut() {}
+    void saveUISettings(const int &, const int &, const bool &, const bool &, const bool &, const bool &, const QString) {}
+    void changeMode() {}
+    void autoChange(const bool &) {}
+    void refreshRAData() {}
+    void beginUpdate() {}
+    void ignoreUpdates(bool) {}
+    void enableWebSocket(bool) {}
+
 signals:
-    void updatedRichText();
+    void loginSuccess();
+    void loginFailed(const QString &error);
+    void changeModeFailed(const QString &reason);
+    void achievementModelReady();
+    void signedOut();
+    void clearedAchievements();
     void displayMessage(const QString &error, const bool &iserror);
+    void consoleChanged();
+    void themeChanged();
+    void disableModeSwitching();
+    void enableModeSwitching();
+    void newUpdate();
+    void ignoreChanged();
+    void updatedRichText();
+    void websocketChanged();
+    void firmwareChanged();
 
 private:
     QString m_richPresence = QStringLiteral("Kong Quest - Gangplank Galley");
+    // Pasta de app vazia: a janela varre themes/ e sounds/ dela.
+    QTemporaryDir m_appDir;
+};
+
+// Dispara, a partir do QML, os mesmos caminhos que o app percorre num
+// desbloqueio ao vivo: o unlockAchievement() real e os sinais reais de jogo.
+class TestHooks : public QObject
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE bool unlock(int id)
+    {
+        return AchievementModel::instance()->unlockAchievement(id, QDateTime::currentDateTime()) != nullptr;
+    }
+
+    Q_INVOKABLE void emitBeaten() { emit GameInfoModel::instance()->beatenGame(); }
+    Q_INVOKABLE void emitMastered() { emit GameInfoModel::instance()->masteredGame(); }
 };
 
 // Os models reais (não dublês) ficam registrados: assim um nome de propriedade
@@ -52,6 +114,11 @@ public slots:
         user->hardcore(true);
         user->hardcore_score(8205);
         user->softcore_score(12);
+        user->theme(QStringLiteral("Dark"));
+        user->width(1000);
+        user->height(700);
+        user->icons(true);
+        user->compact(false);
 
         // Estados variados de propósito: desbloqueada, com progresso, e os três
         // tipos com ícone — cada combinação exercita um ramo do delegate.
@@ -85,10 +152,12 @@ public slots:
         qmlRegisterSingletonInstance("CustomModels", 1, 0, "GameInfoModel", game);
         qmlRegisterSingletonInstance("CustomModels", 1, 0, "UserInfoModel", user);
         qmlRegisterSingletonInstance("CustomModels", 1, 0, "Ra2snes", &m_ra2snes);
+        qmlRegisterSingletonInstance("TestSupport", 1, 0, "TestHooks", &m_hooks);
     }
 
 private:
     FakeRa2snes m_ra2snes;
+    TestHooks m_hooks;
 };
 
 QUICK_TEST_MAIN_WITH_SETUP(ra2snes_qml, Setup)
