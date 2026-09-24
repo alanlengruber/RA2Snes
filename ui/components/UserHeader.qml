@@ -8,6 +8,7 @@ RowLayout {
 
     property var resolver: null
     property bool dense: false
+    readonly property int avatarSize: dense ? 48 : 64
 
     signal linkActivated(url link)
 
@@ -19,11 +20,11 @@ RowLayout {
 
     Image {
         objectName: "avatar"
-        Layout.preferredWidth: header.dense ? 30 : 38
-        Layout.preferredHeight: header.dense ? 30 : 38
+        Layout.preferredWidth: header.avatarSize
+        Layout.preferredHeight: header.avatarSize
         source: UserInfoModel.pfp
-        sourceSize.width: 76
-        sourceSize.height: 76
+        sourceSize.width: header.avatarSize * 2
+        sourceSize.height: header.avatarSize * 2
         asynchronous: true
         cache: true
         smooth: true
@@ -33,15 +34,15 @@ RowLayout {
         layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software
         layer.effect: OpacityMask {
             maskSource: Rectangle {
-                width: header.dense ? 30 : 38
-                height: header.dense ? 30 : 38
+                width: header.avatarSize
+                height: header.avatarSize
                 radius: width / 2
             }
         }
     }
 
-    // Ocupa o espaço que sobra e encurta com "…" quando falta: o selo de
-    // modo à direita nunca pode ser empurrado para fora do bloco.
+    // Nome, pontos e selo de modo empilhados ao lado do avatar. Ocupa o espaço
+    // que sobra e encurta com "…" quando falta.
     ColumnLayout {
         Layout.fillWidth: true
         Layout.minimumWidth: 0
@@ -73,24 +74,24 @@ RowLayout {
             font.pixelSize: header.dense ? 10 : 11
             color: header._c("disabledTextColor", "basicTextColor", "#8fa39a")
         }
-    }
 
-    Rectangle {
-        objectName: "modePill"
-        Layout.preferredHeight: 20
-        Layout.preferredWidth: modeLabel.implicitWidth + 16
-        radius: 10
-        color: UserInfoModel.hardcore
-               ? header._c("hardcoreTextColor", "errorMessageTextColor", "#ff0000")
-               : header._c("softcoreTextColor", "nonErrorMessageTextColor", "#00ff00")
+        Rectangle {
+            objectName: "modePill"
+            Layout.preferredHeight: 20
+            Layout.preferredWidth: modeLabel.implicitWidth + 16
+            radius: 10
+            color: UserInfoModel.hardcore
+                   ? header._c("hardcoreTextColor", "errorMessageTextColor", "#ff0000")
+                   : header._c("softcoreTextColor", "nonErrorMessageTextColor", "#00ff00")
 
-        Text {
-            id: modeLabel
-            anchors.centerIn: parent
-            text: UserInfoModel.hardcore ? qsTr("Hardcore") : qsTr("Softcore")
-            font.bold: true
-            font.pixelSize: 9
-            color: header._c("surfaceElevatedColor", "mainWindowDarkAccentColor", "#161616")
+            Text {
+                id: modeLabel
+                anchors.centerIn: parent
+                text: UserInfoModel.hardcore ? qsTr("Hardcore") : qsTr("Softcore")
+                font.bold: true
+                font.pixelSize: 9
+                color: header._c("surfaceElevatedColor", "mainWindowDarkAccentColor", "#161616")
+            }
         }
     }
 }

@@ -80,6 +80,22 @@ TestCase {
                "grid ends at " + bottom + " (+12 margin) but dashboard declares " + d.implicitHeight);
     }
 
+    // Composição real da largura mínima (600px) com a folga do botão do menu
+    // (52px, como o mainwindow passa): nada do cartão do jogo pode vazar.
+    function test_game_card_fits_at_minimum_width() {
+        var d = makeDashboard({ width: 600, topRightInset: 52 });
+        var game = findChild(d, "gameHeader");
+        var names = ["progressPercent", "progressTrack", "refreshButton"];
+        for (var i = 0; i < names.length; ++i) {
+            var item = findChild(game, names[i]);
+            verify(item !== null, names[i]);
+            var right = item.mapToItem(game, item.width, 0).x;
+            verify(right <= game.width - game.pad + 0.5,
+                   names[i] + " ends at " + right + " in a " + game.width + "px card");
+        }
+        verify(!findChild(d, "userName").truncated, "username elided at 600px");
+    }
+
     function test_loads_and_renders_grid_without_warnings() {
         makeDashboard({ width: 1000 });
     }

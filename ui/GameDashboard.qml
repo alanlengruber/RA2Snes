@@ -103,12 +103,13 @@ Item {
             ColumnLayout {
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: dashboard.headerMode === "stacked"
-                // Pelo menos a largura natural do conteúdo (nome + selo), para o
+                // Pelo menos a largura natural do conteúdo (avatar + nome), para o
                 // nome não encurtar à toa; no máximo 45%, para o cartão do jogo
                 // nunca ficar espremido. Nomes longos demais encurtam com "…".
                 Layout.preferredWidth: dashboard.headerMode === "stacked"
                                        ? -1
-                                       : Math.min(Math.max(300, userHeader.implicitWidth),
+                                       : Math.min(Math.max(dashboard.availableWidth * 0.25,
+                                                           userHeader.implicitWidth),
                                                   dashboard.availableWidth * 0.45)
                 spacing: 8
 

@@ -119,6 +119,7 @@ public:
     Q_INVOKABLE void emitBeaten() { emit GameInfoModel::instance()->beatenGame(); }
     Q_INVOKABLE void setTheme(const QString &name) { UserInfoModel::instance()->theme(name); }
     Q_INVOKABLE void setCompact(bool compact) { UserInfoModel::instance()->compact(compact); }
+    Q_INVOKABLE void setAvatar(const QUrl &url) { UserInfoModel::instance()->pfp(url); }
     Q_INVOKABLE void setBeaten(bool beaten) { GameInfoModel::instance()->beaten(beaten); }
     Q_INVOKABLE void setMastered(bool mastered) { GameInfoModel::instance()->mastered(mastered); }
     Q_INVOKABLE void emitMastered() { emit GameInfoModel::instance()->masteredGame(); }
