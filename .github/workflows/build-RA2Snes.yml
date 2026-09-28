@@ -111,6 +111,17 @@ jobs:
           & "$qtbin\windeployqt6.exe" --qmldir "$qtqml" .\deploy\ra2snes.exe --release
           & Copy-Item "$env:QT_ROOT_DIR\qml\Qt5Compat" -Destination ".\deploy\qml\Qt5Compat" -Recurse
 
+      # The unlock/beaten/mastered sounds are third-party game audio that is not
+      # kept in the repository; the official release zip ships them in sounds/.
+      # Without that folder the app is silent, so bundle it from the release.
+      - name: Bundle sounds from the official release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v1.1.2 --repo Factor-64/RA2Snes --pattern "RA2Snes-windows-x64.zip" --dir upstream
+          Expand-Archive upstream\RA2Snes-windows-x64.zip -DestinationPath upstream\extracted
+          Copy-Item upstream\extracted\sounds -Destination deploy\sounds -Recurse
+
       - name: Upload Windows Build Artifacts
         uses: actions/upload-artifact@v4
         with:
