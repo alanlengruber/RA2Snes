@@ -6,6 +6,8 @@ Item {
     // Intervalo entre o fim de um toast e o começo do próximo.
     property int gapMs: 400
     property var resolver: null
+    // Toasts compactos (a janela banner); o padrão é o toast grande.
+    property bool compactToasts: false
 
     // _queue é um array JS puro: mutá-lo não dispara notificação de binding.
     // Por isso `pending` é atualizado à mão em todo ponto que mexe na fila,
@@ -89,6 +91,7 @@ Item {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             maximumWidth: stack.width
+            compact: stack.compactToasts
         }
     }
 }

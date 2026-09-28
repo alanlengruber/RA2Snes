@@ -333,8 +333,8 @@ ApplicationWindow {
         // Acima dos ícones de challenge quando estão na tela: eles indicam a
         // conquista prestes a completar, e cobri-los justo agora seria o pior momento.
         anchors.bottomMargin: 10 + (hud.visible && challenges.height > 0 ? challenges.height + 10 : 0)
-        width: Math.min(340, parent.width - 40)
-        height: 90
+        width: Math.min(560, parent.width - 40)
+        height: 140
         z: 101
         active: mainWindow.setupFinished
         resolver: toastResolver

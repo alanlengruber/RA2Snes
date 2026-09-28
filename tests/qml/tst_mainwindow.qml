@@ -176,6 +176,7 @@ TestCase {
 
         compare(spy.count, 1);
         compare(spy.signalArguments[0][0].title, "Krow's Nest");
+        compare(feed._current.compact, false, "main window uses the large toast");
     }
 
     // Desligar "Window Icons" esconde o hud dos ícones de challenge; as

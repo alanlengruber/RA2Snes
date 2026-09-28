@@ -87,6 +87,15 @@ TestCase {
         compare(toast.opacity, 0);
     }
 
+    // Teste no Windows: o toast era pequeno e modesto na janela principal. A
+    // banner (320×180, escalada em tela cheia) mantém a versão compacta.
+    function test_main_toast_is_large_and_banner_toast_compact() {
+        var large = createTemporaryObject(toastComponent, this, { variant: "achievement" });
+        var compact = createTemporaryObject(toastComponent, this, { variant: "achievement", compact: true });
+        verify(large.implicitHeight >= 100, "large toast is only " + large.implicitHeight + "px tall");
+        verify(compact.implicitHeight < 80, "compact toast is " + compact.implicitHeight + "px tall");
+    }
+
     function test_game_awards_hold_longer() {
         var achievement = createTemporaryObject(toastComponent, this, { variant: "achievement" });
         var mastered = createTemporaryObject(toastComponent, this, { variant: "mastered" });

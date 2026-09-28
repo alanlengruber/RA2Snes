@@ -21,10 +21,15 @@ Rectangle {
     // títulos que não cabem encurtam com "…".
     property real maximumWidth: Infinity
 
+    // Grande na janela principal; compacto na banner (320×180, que já escala
+    // tudo sozinha quando fica grande ou em tela cheia).
+    property bool compact: false
+
     signal finished()
 
     readonly property bool isGameAward: variant === "beaten" || variant === "mastered"
-    readonly property int badgeSize: isGameAward ? 52 : 40
+    readonly property int badgeSize: compact ? (isGameAward ? 52 : 40)
+                                             : (isGameAward ? 88 : 72)
     readonly property int holdMs: isGameAward ? 6000 : 3900
 
     readonly property string label: {
@@ -39,10 +44,10 @@ Rectangle {
         return resolver ? resolver.color(name, fallbackName, hard) : hard;
     }
 
-    implicitWidth: layout.implicitWidth + 24
-    implicitHeight: layout.implicitHeight + 18
+    implicitWidth: layout.implicitWidth + 2 * layout.anchors.leftMargin
+    implicitHeight: layout.implicitHeight + (compact ? 18 : 32)
     width: Math.min(implicitWidth, maximumWidth)
-    radius: 12
+    radius: compact ? 12 : 16
     opacity: 0
     transformOrigin: Item.Center
 
@@ -74,9 +79,9 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
-        spacing: 10
+        anchors.leftMargin: toast.compact ? 12 : 20
+        anchors.rightMargin: anchors.leftMargin
+        spacing: toast.compact ? 10 : 16
 
         // O wrapper existe para que escala e rotação apliquem ao badge E ao
         // brilho juntos. Aplicar no Image direto deixaria o glow parado.
@@ -111,12 +116,13 @@ Rectangle {
         ColumnLayout {
             Layout.fillWidth: true
             Layout.minimumWidth: 0
-            spacing: 2
+            spacing: toast.compact ? 2 : 4
 
             Text {
                 text: toast.label
                 font.bold: true
-                font.pixelSize: toast.isGameAward ? 10 : 9
+                font.pixelSize: toast.compact ? (toast.isGameAward ? 10 : 9)
+                                              : (toast.isGameAward ? 13 : 12)
                 font.letterSpacing: 1.2
                 color: toast.isGameAward
                        ? toast.border.color
@@ -128,17 +134,18 @@ Rectangle {
                 elide: Text.ElideRight
                 text: toast.title
                 font.bold: true
-                font.pixelSize: toast.isGameAward ? 16 : 13
+                font.pixelSize: toast.compact ? (toast.isGameAward ? 16 : 13)
+                                              : (toast.isGameAward ? 24 : 19)
                 color: toast._c("toastTitleColor", "basicTextColor", "#ffffff")
             }
         }
 
         Text {
             visible: toast.points > 0
-            Layout.leftMargin: 6
+            Layout.leftMargin: toast.compact ? 6 : 10
             text: "+" + toast.points
             font.bold: true
-            font.pixelSize: 18
+            font.pixelSize: toast.compact ? 18 : 26
             color: toast._c("toastPointsColor", "progressBarColor", "#6ee7a8")
         }
     }

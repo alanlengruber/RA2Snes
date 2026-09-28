@@ -187,6 +187,7 @@ ApplicationWindow {
             anchors.margins: 8
             width: 300
             height: 70
+            compactToasts: true
             active: banner.mainWindow ? banner.mainWindow.setupFinished : false
             resolver: bannerToastResolver
         }

@@ -69,6 +69,7 @@ TestCase {
         verify(TestHooks.unlock(1004));
         compare(spy.count, 1);
         compare(spy.signalArguments[0][0].title, "Bramble Scramble");
+        compare(feedOf(window)._current.compact, true, "banner uses the compact toast");
     }
 
     // Final review C2: ao carregar um jogo já terminado, o C++ emite
