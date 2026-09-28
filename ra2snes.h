@@ -20,6 +20,8 @@ class ra2snes : public QObject
     Q_PROPERTY(bool websocket READ websocket WRITE enableWebSocket NOTIFY websocketChanged)
     Q_PROPERTY(bool customFirmware READ customFirmware NOTIFY firmwareChanged)
     Q_PROPERTY(QString richPresence READ richPresence NOTIFY updatedRichText)
+    Q_PROPERTY(bool usb2snesConnected READ usb2snesConnected NOTIFY usb2snesConnectedChanged)
+    Q_PROPERTY(bool consoleConnected READ consoleConnected NOTIFY consoleConnectedChanged)
 
 public:
     enum Task {
@@ -57,6 +59,8 @@ public:
     bool ignore() const;
     bool websocket() const;
     bool customFirmware() const;
+    bool usb2snesConnected() const;
+    bool consoleConnected() const;
 
 public slots:
     void signIn(const QString &username, const QString &password, const bool& remember);
@@ -86,6 +90,8 @@ signals:
     void updatedRichText();
     void websocketChanged();
     void firmwareChanged();
+    void usb2snesConnectedChanged();
+    void consoleConnectedChanged();
 
 private:
     explicit ra2snes(QObject *parent = nullptr);
@@ -102,6 +108,10 @@ private:
     bool m_gameLoaded;
     bool m_loadingGame;
     bool m_customFirmware;
+    // Connection state for the idle screen's checklist. Unlike displayMessage,
+    // these survive until QML reads them (e.g. QUsb2Snes connected before login).
+    bool m_usb2snesConnected = false;
+    bool m_consoleConnected = false;
     bool remember_me;
     bool m_ignore;
     bool m_websocket;
@@ -134,6 +144,8 @@ private:
     void postTelemetryData();
     void updateRichText(const QString& rt);
     void updateFirmware(const bool cfw);
+    void setUsb2snesConnected(bool connected);
+    void setConsoleConnected(bool connected);
     void evaluateFrameData();
     QElapsedTimer* frameTimer;
     QQueue<QPair<QByteArray, unsigned int>> frameQueue;

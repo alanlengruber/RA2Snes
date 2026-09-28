@@ -90,10 +90,19 @@ Item {
 
         // Cabeçalho: empilha abaixo de 520px, lado a lado acima.
         GridLayout {
-            Layout.fillWidth: true
+            // Sem jogo, o grid inteiro vira uma coluna centralizada de até 640px.
+            // (Centralizar o item dentro da célula não basta: a célula tem a
+            // largura do próprio item.)
+            Layout.fillWidth: dashboard.gameLoaded
+            Layout.preferredWidth: dashboard.gameLoaded
+                                   ? -1
+                                   : Math.min(640, dashboard.availableWidth - 24
+                                                   - Math.max(0, dashboard.topRightInset - 4))
+            Layout.alignment: dashboard.gameLoaded ? Qt.AlignLeft : Qt.AlignHCenter
             // 12 é a margem do próprio ColumnLayout; 8 é o respiro até o botão.
             Layout.rightMargin: dashboard.topRightInset > 0 ? dashboard.topRightInset - 12 + 8 : 0
-            columns: dashboard.headerMode === "stacked" ? 1 : 2
+            // Sem jogo, o bloco do usuário vira a tela inteira (perfil + checklist).
+            columns: dashboard.headerMode === "stacked" || !dashboard.gameLoaded ? 1 : 2
             columnSpacing: 10
             rowSpacing: 10
 
@@ -102,19 +111,29 @@ Item {
             // sobra embaixo do nome sem empurrar o grid.
             ColumnLayout {
                 Layout.alignment: Qt.AlignTop
-                Layout.fillWidth: dashboard.headerMode === "stacked"
+                Layout.fillWidth: !dashboard.gameLoaded || dashboard.headerMode === "stacked"
                 // Pelo menos a largura natural do conteúdo (avatar + nome), para o
                 // nome não encurtar à toa; no máximo 45%, para o cartão do jogo
                 // nunca ficar espremido. Nomes longos demais encurtam com "…".
-                Layout.preferredWidth: dashboard.headerMode === "stacked"
-                                       ? -1
-                                       : Math.min(Math.max(dashboard.availableWidth * 0.25,
-                                                           userHeader.implicitWidth),
-                                                  dashboard.availableWidth * 0.45)
-                spacing: 8
+                Layout.preferredWidth: !dashboard.gameLoaded || dashboard.headerMode === "stacked"
+                                         ? -1
+                                         : Math.min(Math.max(dashboard.availableWidth * 0.25,
+                                                             userHeader.implicitWidth),
+                                                    dashboard.availableWidth * 0.45)
+                spacing: dashboard.gameLoaded ? 8 : 14
+
+                ProfileCard {
+                    objectName: "profileCard"
+                    visible: !dashboard.gameLoaded
+                    Layout.fillWidth: true
+                    resolver: themeResolver
+                    dense: dashboard.dense
+                    onLinkActivated: (link) => Qt.openUrlExternally(link)
+                }
 
                 UserHeader {
                     id: userHeader
+                    visible: dashboard.gameLoaded
                     Layout.fillWidth: true
                     resolver: themeResolver
                     dense: dashboard.dense
@@ -125,6 +144,14 @@ Item {
                     Layout.fillWidth: true
                     source: "./errormessage.qml"
                     onLoaded: item.mainWindow = dashboard.mainWindow
+                }
+
+                ConnectionChecklist {
+                    objectName: "connectionChecklist"
+                    visible: !dashboard.gameLoaded
+                    Layout.fillWidth: true
+                    resolver: themeResolver
+                    dense: dashboard.dense
                 }
             }
 

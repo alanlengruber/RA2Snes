@@ -66,6 +66,7 @@ ra2snes::ra2snes(QObject *parent)
         //qDebug() << "Connected to usb2snes server, trying to find a suitable device";
         raclient->clearAchievements();
         usb2snes->deviceList();
+        setUsb2snesConnected(true);
         emit displayMessage("QUsb2Snes/SNI Connected", false);
     });
 
@@ -81,6 +82,8 @@ ra2snes::ra2snes(QObject *parent)
         emit clearedAchievements();
         updateRichText("");
         doThisTaskNext = None;
+        setUsb2snesConnected(false);
+        setConsoleConnected(false);
         //qDebug() << "Disconnected, trying to reconnect in 1 sec";
         emit displayMessage("QUsb2Snes/SNI Not Connected", true);
         QTimer::singleShot(1000, this, [=] {
@@ -98,6 +101,7 @@ ra2snes::ra2snes(QObject *parent)
             reset = true;
             m_gameLoaded = true;
             usb2snes->infos(true);
+            setConsoleConnected(true);
             emit displayMessage("Console Connected", false);
         }
         else
@@ -112,6 +116,7 @@ ra2snes::ra2snes(QObject *parent)
             updateRichText("");
             updateFirmware(false);
             m_gameLoaded = false;
+            setConsoleConnected(false);
             emit displayMessage("Console Not Connected", true);
             QTimer::singleShot(1000, this, [=] {
                 raclient->sendQueuedRequest();
@@ -883,6 +888,32 @@ QString ra2snes::richPresence() const
 bool ra2snes::customFirmware() const
 {
     return m_customFirmware;
+}
+
+bool ra2snes::usb2snesConnected() const
+{
+    return m_usb2snesConnected;
+}
+
+bool ra2snes::consoleConnected() const
+{
+    return m_consoleConnected;
+}
+
+void ra2snes::setUsb2snesConnected(bool connected)
+{
+    if (m_usb2snesConnected == connected)
+        return;
+    m_usb2snesConnected = connected;
+    emit usb2snesConnectedChanged();
+}
+
+void ra2snes::setConsoleConnected(bool connected)
+{
+    if (m_consoleConnected == connected)
+        return;
+    m_consoleConnected = connected;
+    emit consoleConnectedChanged();
 }
 
 QString ra2snes::version() const

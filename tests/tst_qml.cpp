@@ -23,9 +23,21 @@ class FakeRa2snes : public QObject
     Q_PROPERTY(bool customFirmware READ customFirmware NOTIFY firmwareChanged)
     Q_PROPERTY(QString richPresence READ richPresence NOTIFY updatedRichText)
     Q_PROPERTY(int refreshCalls READ refreshCalls NOTIFY refreshCallsChanged)
+    Q_PROPERTY(bool usb2snesConnected READ usb2snesConnected NOTIFY usb2snesConnectedChanged)
+    Q_PROPERTY(bool consoleConnected READ consoleConnected NOTIFY consoleConnectedChanged)
 
 public:
     int refreshCalls() const { return m_refreshCalls; }
+    bool usb2snesConnected() const { return m_usb2snesConnected; }
+    bool consoleConnected() const { return m_consoleConnected; }
+
+    Q_INVOKABLE void setConnection(bool usb2snes, bool console)
+    {
+        m_usb2snesConnected = usb2snes;
+        m_consoleConnected = console;
+        emit usb2snesConnectedChanged();
+        emit consoleConnectedChanged();
+    }
     QString console() const { return QStringLiteral("SNES"); }
     QString appDirPath() const { return m_appDir.path(); }
     QString version() const { return QStringLiteral("test"); }
@@ -85,10 +97,14 @@ signals:
     void websocketChanged();
     void firmwareChanged();
     void refreshCallsChanged();
+    void usb2snesConnectedChanged();
+    void consoleConnectedChanged();
 
 private:
     QString m_richPresence = QStringLiteral("Kong Quest - Gangplank Galley");
     int m_refreshCalls = 0;
+    bool m_usb2snesConnected = false;
+    bool m_consoleConnected = false;
 
 public:
     FakeRa2snes()

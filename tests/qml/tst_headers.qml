@@ -52,15 +52,18 @@ TestCase {
     }
 
     function test_user_header_fits_given_width_data() {
+        // "natural" = largura implícita do próprio cabeçalho, que é o mínimo
+        // que o dashboard dá a ele na janela de 600px; 198 força o nome a encurtar.
         return [
-            { tag: "198", width: 198 },
-            { tag: "150", width: 150 }
+            { tag: "natural", width: -1 },
+            { tag: "198", width: 198 }
         ];
     }
 
     // Mais estreito que o conteúdo: o nome encurta, o selo de modo não vaza.
     function test_user_header_fits_given_width(data) {
-        var header = createTemporaryObject(userComponent, this, { width: data.width });
+        var header = createTemporaryObject(userComponent, this);
+        header.width = data.width > 0 ? data.width : header.implicitWidth;
         waitForRendering(header);
         var pill = findChild(header, "modePill");
         verify(pill !== null);

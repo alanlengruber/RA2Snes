@@ -32,6 +32,10 @@
         <file>ui/components/AchievementToast.qml</file>
         <file>ui/components/ToastStack.qml</file>
         <file>ui/components/UnlockToasts.qml</file>
+        <file>ui/components/Avatar.qml</file>
+        <file>ui/components/ModePill.qml</file>
+        <file>ui/components/ProfileCard.qml</file>
+        <file>ui/components/ConnectionChecklist.qml</file>
         <file>ui/GameDashboard.qml</file>
         <file>ui/icons.qml</file>
     </qresource>
